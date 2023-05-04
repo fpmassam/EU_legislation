@@ -1,0 +1,41 @@
+# Hourly scraping
+name: download_data
+
+# Controls when the action will run.
+on:
+  schedule:
+    - cron:  "*/5 * * * *"
+
+
+jobs: 
+  autoscrape:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+
+    # Load repo and install R
+    steps:
+    - uses: actions/checkout@master
+    - uses: r-lib/actions/setup-r@master
+
+    # Set-up R
+    - name: Install packages
+      run: |
+        R -e 'install.packages("tidyverse")'
+        R -e 'install.packages(eurlex)
+ 
+      
+    # Run R script
+    - name: Data_collect
+      run: EU_lex.R
+      
+ # Add new files in data folder, commit along with other modified files, push
+    - name: Commit files
+      run: |
+        git config --local user.name fpmassam
+        git config --local user.email "francesco.picinelli@gmail.com"
+        git add **/*.RData
+        git commit -am "R_workspace"
+        git push origin main
+      env:
+        REPO_KEY: ${{secrets.GITHUB_TOKEN}}
+        username: fpmassam
